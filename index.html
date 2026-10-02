@@ -3,23 +3,98 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Web Game Template</title>
+  <title>Chroma</title>
   <link rel="icon" href="data:,">
-  <style>
-    * { box-sizing: border-box; }
-    html, body { margin: 0; height: 100%; background: #0a111b; color: #cfd8dc; font-family: system-ui, sans-serif; overflow: hidden; }
-    #app { position: fixed; inset: 0; display: grid; grid-template-rows: auto 1fr; }
-    #hud { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 12px; font-size: 14px; }
-    #mute { background: #1c2e45; color: inherit; border: 1px solid #3d6090; border-radius: 6px; padding: 4px 10px; cursor: pointer; }
-    /* stage は canvas の大きさに左右されない寸法を持つ（kit/scale の前提） */
-    #stage { position: relative; min-height: 0; }
-    #game { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); touch-action: none; }
-  </style>
 </head>
 <body>
   <div id="app">
-    <div id="hud"><span id="status"></span><button id="mute" type="button"></button></div>
+
+    <!-- ── 上バー ── -->
+    <header class="float-top">
+      <div class="top-left"></div>
+
+      <!-- 中央：お題 + あなたの色 + 近さ -->
+      <div class="top-center">
+        <div class="top-swatches">
+          <div class="swatch-mini-group">
+            <span class="swatch-label">お題</span>
+            <canvas id="targetCanvas" class="pattern-preview" width="140" height="92"></canvas>
+          </div>
+          <div class="arrow-mini">→</div>
+          <div class="swatch-mini-group">
+            <span id="mixLabel" class="swatch-label">あなたの色</span>
+            <canvas id="mixCanvas" class="pattern-preview" width="140" height="92"></canvas>
+          </div>
+          <button id="eyedropBtn" class="btn-tool" type="button" title="あなたの色を採色（カスタムスロットもクリック可）">🎯</button>
+        </div>
+        <div class="top-score">
+          <div id="similarity" class="similarity"></div>
+          <div id="colorName" class="color-name"></div>
+          <div id="simDetail" class="sim-detail">
+            <span>明度 <b id="detailL" class="sim-badge">—</b></span>
+            <span>色相+彩度 <b id="detailC" class="sim-badge">—</b></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="top-right">
+        <button id="judgeBtn" class="btn-primary btn-compact" type="button">判定する</button>
+        <button id="nextBtn" class="btn-secondary btn-compact" type="button">次のお題</button>
+        <button id="clearBtn" class="btn-clear btn-compact" type="button">クリア</button>
+        <label class="guide-toggle">
+          <input type="checkbox" id="guideMode">
+          <span>ガイド</span>
+        </label>
+      </div>
+    </header>
+
+    <!-- ── 塗る面 ── -->
     <div id="stage"><canvas id="game"></canvas></div>
+
+    <!-- ── 下バー ── -->
+    <div class="float-bottom">
+      <p class="hint" id="hint"></p>
+
+      <!-- 原色パレット -->
+      <div class="paint-row">
+        <button class="blob" type="button" data-color="red">
+          <span class="blob-circle" style="--c:#d93a3a"></span>
+          <span class="blob-label">赤</span>
+        </button>
+        <button class="blob" type="button" data-color="yellow">
+          <span class="blob-circle" style="--c:#f0c030"></span>
+          <span class="blob-label">黄</span>
+        </button>
+        <button class="blob" type="button" data-color="blue">
+          <span class="blob-circle" style="--c:#2e6fcf"></span>
+          <span class="blob-label">青</span>
+        </button>
+        <button class="blob" type="button" data-color="white">
+          <span class="blob-circle" style="--c:#e8e8e8; --b:1px solid #888"></span>
+          <span class="blob-label">白</span>
+        </button>
+        <button class="blob" type="button" data-color="black">
+          <span class="blob-circle" style="--c:#242424"></span>
+          <span class="blob-label">黒</span>
+        </button>
+      </div>
+
+      <!-- カスタムパレット -->
+      <div class="custom-section">
+        <!-- 保留バー（カスタムが満杯のときに表示） -->
+        <div id="pendingBar" class="pending-bar">
+          <div id="pendingPreview" class="pending-preview"></div>
+          <span class="pending-hint">入れ替えるスロットをタップ</span>
+          <button id="discardPendingBtn" class="btn-discard" type="button">✕ 捨てる</button>
+        </div>
+        <div class="custom-header">
+          <span class="custom-label">カスタム</span>
+          <button id="customEyedropBtn" class="btn-tool-sm" type="button" title="キャンバスから採色してカスタムに追加">🔬</button>
+        </div>
+        <div id="customSlots" class="custom-slots"></div>
+      </div>
+    </div>
+
   </div>
   <script type="module" src="/src/main.ts"></script>
 </body>

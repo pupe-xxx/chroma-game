@@ -1,5 +1,5 @@
 {
-  "name": "web-game-template",
+  "name": "chroma-game",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -9,12 +9,10 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit && tsc -p tsconfig.game.json --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest",
-    "sim": "tsx scripts/sim.ts"
+    "test:watch": "vitest"
   },
   "devDependencies": {
     "@types/node": "^26.6.3",
-    "tsx": "^4.23.15",
     "typescript": "^7.0.2",
     "vite": "^8.3.2",
     "vitest": "^5.0.3"
